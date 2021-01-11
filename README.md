@@ -14,10 +14,7 @@ Join our community at the [`Rust Audio Discord`]!
 - [ ] swing-tempo
 
 ## UI
-- Best UI library candidates
-  - [`tuix`] - Built from the ground up with audio in mind. Still in early development.
-  - [`iced`] - A popular Rust UI library, but currently has performance issues and lacks some features.
-  - [`egui`] - Simple to use library with a lot of features, but performance may be an issue.
+- [x] UI library - [`tuix`]
 - [ ] peak/rms meters
 - [ ] oscilloscope
 - [ ] spectrometer
