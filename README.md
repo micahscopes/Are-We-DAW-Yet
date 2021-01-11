@@ -3,6 +3,15 @@ A checklist of features needed to create a fully-featured Digital Audio Workstat
 
 Join our community at the [`Rust Audio Discord`]!
 
+# Important first steps:
+We must get these right to avoid massive headaches later.
+- [x] Single project vs modular. - Aim to create a modular system of repositories rather than one monolithic project.
+- [ ] Decide how audio should be routed. Reaper is a good inspiration here.
+- [ ] Decide how to handle time. Look at Ardour for inspiration.
+- [ ] Decide how to handle tempo and time signatures.
+
+# Modular DAW System Checklist
+
 ## Algorithms
 - [ ] scene graph
 - [ ] panning
@@ -13,98 +22,29 @@ Join our community at the [`Rust Audio Discord`]!
 - [ ] multithreading
 - [ ] swing-tempo
 
+## IO
+- [ ] JACK audio
+- [ ] JACK MIDI
+- [ ] ALSA audio
+- [ ] ALSA MIDI
+- [ ] ASIO
+- [ ] Generic Windows IO
+- [ ] (Whatever the sound engine on MacOS is called)
+
 ## UI
 - [x] UI library - [`tuix`]
 - [ ] peak/rms meters
 - [ ] oscilloscope
 - [ ] spectrometer
 - [ ] waveform rendering
-- [ ] piano roll
-  - [ ] display midi notes
-  - [ ] slice/copy/paste midi notes
-  - [ ] quantizer
-  - [ ] edit velocity/pan
-  - [ ] grid sizes/snapping
-  - [ ] time signatures
-  - [ ] edit automation?
-  - [ ] edit multiple tracks at same time
-  - [ ] chord helpers
-  - [ ] midi slicer with presets
-- [ ] automation editor
-- [ ] mixer strip
-  - [ ] fader controls
-  - [ ] pan controls
-  - [ ] width controls
-  - [ ] phase offset controls
-  - [ ] peak/rms meters
-  - [ ] routing
-  - [ ] busses
-  - [ ] mix groups
-  - [ ] sends
-  - [ ] view and select plugins and tracks
-- [ ] timeline
-  - [ ] display midi patterns
-  - [ ] display automation
-  - [ ] display waveforms
-  - [ ] display chords
-  - [ ] slice patterns
-  - [ ] copy/loop patterns
-  - [ ] grid sizes/snapping
-  - [ ] time signatures
-  - [ ] waveform editing
-    - [ ] fade
-    - [ ] reverse
-    - [ ] stretch
-    - [ ] pitch
-- [ ] step-sequencer
-- [ ] pattern sequencer
-- [ ] recording
-  - [ ] arm/disarm track
-  - [ ] record targets (audio, midi, automation)
-  - [ ] loop recording
-  - [ ] multi-take management
-- [ ] waveform editor
-  - [ ] zoom in/out
-  - [ ] fade
-  - [ ] slice, cut, paste
-  - [ ] effects (reverse/stretch/pitch)
-  - [ ] convolution effects
-  - [ ] edit individual samples
-  - [ ] pitch correction?
-- [ ] generic plugin UI
-- [ ] file browser
-  - [ ] sound file browser
-    - [ ] play sound file on click
-    - [ ] loop/one-shot
-    - [ ] volume control
-    - [ ] search
-    - [ ] favorites
-  - [ ] plugin browser
-    - [ ] browse by type
-    - [ ] browse by format
-    - [ ] favorites
-    - [ ] search
-  - [ ] preset browser
-    - [ ] browse by tags
-    - [ ] favorites
-    - [ ] search
-- [ ] settings
-  - [ ] select audio devices
-  - [ ] select midi devices
-  - [ ] sound file sources
-  - [ ] plugin file sources
-  - [ ] keyboard shortcuts
-  - [ ] jack settings?
-- [ ] overall application design
-- [ ] theming
-- [ ] multi-language support
+- [ ] envelope rendering
 
 ## Plugin hosting
 - [ ] lv2 plugin hosting
 - [ ] vst2 plugin hosting
 - [ ] vst3 plugin hosting
 - [ ] auv2 plugin hosting
-- [ ] auv3 plugin hosting
+- [ ] auv3 plugin hosting?
 - [ ] our own custom plugin format?
 - [ ] plugin sandboxing?
 
@@ -118,11 +58,25 @@ Join our community at the [`Rust Audio Discord`]!
 - [ ] midi2 reader/writer
 - [ ] MPE support
 
-## Essential Generators
+## Housekeeping
+- [ ] website?
+
+# Nice-to-have Features
+
+## Generators
 - [ ] one-shot sampler
 - [ ] test tone synth
+### Lower-priority
+- [ ] sf2/sfz multisampler
+- [ ] multi-drum sampler
+- [ ] basic subtractive synthesizer
+- [ ] basic additive synthesizer
+- [ ] basic drum synthesizer
+- [ ] wavetable synthesizer
+- [ ] granular synthesizer
+- [ ] drum slicer
 
-## Essential FX
+## FX
 - [ ] gain & pan
 - [ ] LP/BP/HP filter
 - [ ] parametric EQ
@@ -141,24 +95,7 @@ Join our community at the [`Rust Audio Discord`]!
 - [ ] chorus
 - [ ] phaser/flanger
 - [ ] comb filter
-
-## Essential MIDI FX
-- [ ] LFO
-- [ ] transposer
-- [ ] multi-note/chords
-- [ ] basic arpeggiator
-
-## Nice-to-have Generators
-- [ ] sf2/sfz multisampler
-- [ ] multi-drum sampler
-- [ ] basic subtractive synthesizer
-- [ ] basic additive synthesizer
-- [ ] basic drum synthesizer
-- [ ] wavetable synthesizer
-- [ ] granular synthesizer
-- [ ] drum slicer
-
-## Nice-to-have FX
+### Lower-priority
 - [ ] analouge-modeled EQ
 - [ ] analouge-modeled compressor
 - [ ] multiband compressor
@@ -176,14 +113,11 @@ Join our community at the [`Rust Audio Discord`]!
 - [ ] pitch correction tool
 - [ ] desser
 
-## Misc
-- [ ] undo/redo history
-- [ ] project file format
-
-## Housekeeping
-- [ ] website
-- [ ] example projects
-- [ ] tutorials
+## MIDI FX
+- [ ] LFO
+- [ ] transposer
+- [ ] multi-note/chords
+- [ ] basic arpeggiator
 
 <img src="/images/dank_meme.jpg">
 
