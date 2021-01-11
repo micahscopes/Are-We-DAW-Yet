@@ -28,6 +28,7 @@ Join our community at the [`Rust Audio Discord`]!
   - [ ] quantizer
   - [ ] edit velocity/pan
   - [ ] grid sizes/snapping
+  - [ ] time signatures
   - [ ] edit automation?
   - [ ] edit multiple tracks at same time
   - [ ] chord helpers
@@ -52,6 +53,7 @@ Join our community at the [`Rust Audio Discord`]!
   - [ ] slice patterns
   - [ ] copy/loop patterns
   - [ ] grid sizes/snapping
+  - [ ] time signatures
   - [ ] waveform editing
     - [ ] fade
     - [ ] reverse
