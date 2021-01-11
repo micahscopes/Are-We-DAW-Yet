@@ -115,8 +115,9 @@ Join our community at the [`Rust Audio Discord`]!
 - [ ] mp3
 
 ## MIDI
-[ ] midi reader/writer
-[ ] midi2 reader/writer
+- [ ] midi reader/writer
+- [ ] midi2 reader/writer
+- [ ] MPE support
 
 ## Essential Generators
 - [ ] one-shot sampler
