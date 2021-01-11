@@ -13,7 +13,7 @@ We must get these right to avoid massive headaches later.
 
 # Modular DAW System Checklist
 
-## Algorithms
+## Algorithms - [`rusty-daw-algorithms`]
 - [ ] scene graph
 - [ ] panning
 - [ ] dithering
@@ -23,14 +23,14 @@ We must get these right to avoid massive headaches later.
 - [ ] multithreading
 - [ ] swing-tempo
 
-## IO
+## IO - [`rusty-daw-io`]
 - [ ] JACK audio
 - [ ] JACK MIDI
 - [ ] ALSA audio
 - [ ] ALSA MIDI
 - [ ] ASIO
 - [ ] Generic Windows IO
-- [ ] (Whatever the sound engine on MacOS is called)
+- [ ] CoreAudio
 
 ## UI
 - [x] UI library - [`tuix`]
@@ -40,7 +40,7 @@ We must get these right to avoid massive headaches later.
 - [ ] waveform rendering
 - [ ] envelope rendering
 
-## Plugin hosting
+## Plugin hosting - [`rusty-daw-plugin-host`]
 - [ ] lv2 plugin hosting
 - [ ] vst2 plugin hosting
 - [ ] vst3 plugin hosting
@@ -49,12 +49,14 @@ We must get these right to avoid massive headaches later.
 - [ ] our own custom plugin format?
 - [ ] plugin sandboxing?
 
-## Sound file formats
+## Sound file formats - [`rusty-daw-encode`]
 - [ ] wav
 - [ ] ogg
+- [ ] flac
 - [ ] mp3
+- [ ] aiff
 
-## MIDI
+## MIDI - [`rusty-daw-midi`]
 - [ ] midi reader/writer
 - [ ] midi2 reader/writer
 - [ ] MPE support
@@ -126,3 +128,8 @@ We must get these right to avoid massive headaches later.
 [`iced`]: https://github.com/hecrj/iced
 [`egui`]: https://github.com/emilk/egui
 [`Rust Audio Discord`]: https://discord.com/channels/590254806208217089/590283781806620672
+[`rusty-daw-algorithms`]: https://github.com/RustyDAW/rusty-daw-algorithms
+[`rusty-daw-io`]: https://github.com/RustyDAW/rusty-daw-io
+[`rusty-daw-plugin-host`]: https://github.com/RustyDAW/rusty-daw-plugin-host
+[`rusty-daw-encode`]: https://github.com/RustyDAW/rusty-daw-encode
+[`rusty-daw-midi`]: https://github.com/RustyDAW/rusty-daw-midi
