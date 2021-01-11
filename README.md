@@ -188,6 +188,8 @@ Join our community at the [`Rust Audio Discord`]!
 - [ ] example projects
 - [ ] tutorials
 
+<img src="/images/meme.jpg">
+
 [`tuix`]: https://github.com/geom3trik/tuix
 [`iced`]: https://github.com/hecrj/iced
 [`egui`]: https://github.com/emilk/egui
