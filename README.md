@@ -32,7 +32,7 @@ We must get these right to avoid massive headaches later.
 - [ ] Generic Windows IO
 - [ ] CoreAudio
 
-## UI
+## UI - [`rusty-daw-widgets`]
 - [x] UI library - [`tuix`]
 - [ ] peak/rms meters
 - [ ] oscilloscope
@@ -133,3 +133,4 @@ We must get these right to avoid massive headaches later.
 [`rusty-daw-plugin-host`]: https://github.com/RustyDAW/rusty-daw-plugin-host
 [`rusty-daw-encode`]: https://github.com/RustyDAW/rusty-daw-encode
 [`rusty-daw-midi`]: https://github.com/RustyDAW/rusty-daw-midi
+[`rusty-daw-widgets`]: https://github.com/RustyDAW/rusty-daw-widgets
