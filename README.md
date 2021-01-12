@@ -6,7 +6,7 @@ Join our community at the [`Rust Audio Discord`]!
 # Important first steps:
 We must get these right to avoid massive headaches later.
 - [x] Single project vs modular. - Aim to create a modular system of repositories rather than one monolithic project.
-- [ ] Licensing - Use GPLv3 for all RustyDAW projects (except for any custom plugin formats)?
+- [x] Licensing - Use GPLv3 for all RustyDAW projects (except for plugin hosting and custom formats).
 - [ ] Decide how audio should be routed. Reaper is a good inspiration here.
 - [ ] Decide how to handle time. Look at Ardour for inspiration.
 - [ ] Decide how to handle tempo and time signatures.
