@@ -11,6 +11,9 @@ We must get these right to avoid massive headaches later.
 - [ ] Decide how to handle time. Look at Ardour for inspiration.
 - [ ] Decide how to handle tempo and time signatures.
 
+# Inspiration Resources
+- https://www.cockos.com/wdl/
+
 # Modular DAW System Checklist
 
 ## Algorithms - [`rusty-daw-algorithms`]
