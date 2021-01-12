@@ -11,9 +11,6 @@ We must get these right to avoid massive headaches later.
 - [ ] Decide how to handle time. Look at Ardour for inspiration.
 - [ ] Decide how to handle tempo and time signatures.
 
-# Inspiration Resources
-- https://www.cockos.com/wdl/
-
 # Modular DAW System Checklist
 
 ## Algorithms - [`rusty-daw-algorithms`]
@@ -124,6 +121,9 @@ We must get these right to avoid massive headaches later.
 - [ ] transposer
 - [ ] multi-note/chords
 - [ ] basic arpeggiator
+
+# Inspiration Resources
+- https://www.cockos.com/wdl/
 
 <img src="/images/dank_meme.jpg">
 
