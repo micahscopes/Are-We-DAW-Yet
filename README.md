@@ -14,6 +14,7 @@ We must get these right to avoid massive headaches later.
 # Modular DAW System Checklist
 
 ## Algorithms - [`rusty-daw-algorithms`]
+- [ ] gain & summing
 - [ ] scene graph
 - [ ] panning
 - [ ] dithering
