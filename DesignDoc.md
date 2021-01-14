@@ -33,7 +33,7 @@ for now.
 ## First steps
 We must get these issues sorted out to avoid massive headaches later on.
 - [x] 1. Strive to use GPLv3 for all RustyDAW projects unless it is agreed to use MIT (i.e. custom plugin formats).
-- [ ] 2. Decide how to handle time. Ardour is a good inspiration here.
+- [ ] 2. Decide how to handle time. [`Ardour`] is a good inspiration here.
   - Identify the core algorithms needed to create this time-keeping algorithm.
 - [ ] 3. Decide how to handle tempo and time signatures.
   - Identify the core algorithms needed to create this algorithm.
@@ -96,3 +96,5 @@ algorithms include:
  
  ## Fourth step
  - [ ] Hooray, we did it! Decide which features to focus on next.
+
+[`Ardour`]: https://ardour.org/timing.html
