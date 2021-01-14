@@ -5,6 +5,8 @@ The RustyDAW project is a community-driven effort to create a set of modular ope
 to create a Digital Audio Workstation (DAW). We believe Rust to be the perfect language for this because if its safety and modularity features.
 
 # Context
+The current state of audio software development is slow, bogged down by old technology, and standards development is too closed. A DAW is a unique project in that it can drive change for many different technologies and if it gains enough traction, define new standards. It's important for that work to be done in the open, to avoid the mistakes of other technologies and to accelerate the pace of innovation. 
+
 We believe the current state of open-source DAWs to be lacking. This is due to a number of reasons.
 - DAWs are inherently complex. Many topics and factors must be taken into account and work together. With Rust, we can easily create separate modules that focus
 on indiviual topics, and have those modules fit nicely with eachother.
