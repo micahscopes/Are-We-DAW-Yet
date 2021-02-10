@@ -19,7 +19,7 @@ Join our community at the [`Rust Audio Discord`]!
 [`tuix`]: https://github.com/geom3trik/tuix
 [`iced`]: https://github.com/hecrj/iced
 [`egui`]: https://github.com/emilk/egui
-[`Rust Audio Discord`]: https://discord.com/channels/590254806208217089/590283781806620672
+[`Rust Audio Discord`]: https://discord.gg/Qs2Zwtf9Gf
 [`rusty-daw-algorithms`]: https://github.com/RustyDAW/rusty-daw-algorithms
 [`rusty-daw-io`]: https://github.com/RustyDAW/rusty-daw-io
 [`rusty-daw-plugin-host`]: https://github.com/RustyDAW/rusty-daw-plugin-host
