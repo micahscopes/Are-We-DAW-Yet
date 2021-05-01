@@ -173,17 +173,56 @@ The proposed interface will look like this:
     (Goals after mvp include time stretching, pitch *and* time streching, and formant shifting)
 * An enum called `InterpQuality` (interpolation quality, non-exhaustive)
     * `TODO`
+    * Linear
 * Ability to create a `Sampler` type, which contains the following:
     * An *immutable* [`basedrop`] smart pointer to a `PCMResource`. The immutability reflects the non-destructive nature of this engine.
     * A method that fills rendered samples into a given buffer. This method will have the following arguments:
         * `buffer: &mut[f32]` - the buffer of samples to fill (single channel)
         * `channel: u16` - the channel of the `PCMResource` to use
         * `frame: SampleTime(i64)` - the frame in the `PCMResource` where the copying will start. Note this may be negative. The behavior of this method should be to fill in zeros wherever the buffer lies outside of the resource's range.
-        * `sub_frame: f64` - the fractional sub-sample offset to add to the previous `frame` argument. This engine should handles interpolation.
+        * `sub_frame: f64` - the fractional sub-sample offset to add to the previous `frame` argument. This engine handles interpolation.
         * `shift_mode: ShiftMode` - described above
         * `interp_quality: InterpQuality` - described above
+    * A similar method as above, but optimized for stereo signals
 
 While streaming samples from disk is an eventual goal of this crate, it will not be part of the mvp.
+
+
+## Control Spec
+
+*TODO*
+
+
+## Timeline Engine
+
+We will store this functionality in the [`rusty-daw-timeline`] repo.
+
+### Audio Clips
+
+*TODO*
+
+### Piano Roll Clips
+
+*TODO*
+
+### Control (Automation) Clips
+
+*TODO*
+
+
+## Internal Plugins
+
+*TODO*
+
+
+## Plugin Hosting
+
+*TODO*
+
+
+## Recording
+
+*TODO*
 
 
 # GUI Design (MVP)
