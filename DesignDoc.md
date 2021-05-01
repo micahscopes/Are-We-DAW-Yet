@@ -1,11 +1,11 @@
-# RustyDAW Design Document 1.0
+# RustyDAW Design Document
 
 RustyDAW is a collection of tools for creating Digital Audio Workstations (DAWs).
 
 RustyDAW is a community-driven project. If you are interested in participating, feel free to join the [RustAudio Discord](https://discord.com/invite/8rPCp9Q), channels `#rusty-daw` and `#rusty-daw-gui`.
 
 
-## Objective
+# Objective
 
 *TL;DR: we want a solid, open-source, more-modular audio ecosystem, and we think Rust enables us to provide it.*
 
@@ -23,7 +23,7 @@ We believe Rust to be the perfect language for this project because of its desig
  - Rust's safety guarantees will significantly reduce the occurrence of DAWs crashing
 
 
-## Scope
+# Scope for MVP (minimum viable product)
 
 While our long term goals are to grow into a fully-featured DAW with a featureset that competes with existing commercial DAWs like FL, Live, and Bitwig, we need to limit the scope to achieve minimum viable product (mvp) release.
 
@@ -32,7 +32,7 @@ Note these goals are for a specific software application that will be the "flags
 
 * Cross-platform (Mac, Windows, and Linux)
 * Multi-track timeline with audio clips. Audio clips can added, moved, removed, sliced, and copied freely around the timeline
-* Load wav, aac, flac, mp3, pcm, and ogg vorbis files as audio clips (afforded to us by the Symphonia crate)
+* Load wav, aac, flac, mp3, pcm, and ogg vorbis files as audio clips (afforded to us by the [`Symphonia`] crate)
 * Export to wav file
 * Realtime effects on audio clips (MVP will include gain, crossfade, pitch shift (doppler), and reverse)
 * Robust audio graph
@@ -111,9 +111,88 @@ To keep the scope manageable with such a small team, we will NOT focus on these 
 * Hosting LV2, VST3, and AU plugins
 * Plugin sandboxing
 * Advanced loop recording
+* Swing tempo
 
-## Design
+
+# Backend Design (MVP)
+
+
+## Time Keeping
+
+Keeping accurate track of time of events is crucial. However, automated tempos and samplerates poses a challenge. The proposed solution lies in the [`rusty-daw-time`] repo.
+
+The crate is designed as such:
+
+### Intended workflow:
+1. The GUI/non-realtime thread stores all events in `MusicalTime` (unit of beats).
+2. The GUI/non-realtime thread creates a new `TempoMap` on project startup and whenever anything about the tempo changes. It this sends this new `TempoMap` to the realtime-thread.
+3. When the realtime thread detects a new `TempoMap`, all processors with events stored in `MusicalTime` use the `TempoMap` plus the `SampleRate` to convert each `MusicalTime` into the corresponding discrete `SampleTime` (or sub-samples). It keeps this new `SampleTime` for all future use (until a new `TempoMap` is recieved).
+4. When playback occurs, the realtime-thread keeps tracks of the number of discrete samples that have elapsed. It sends this "playhead" to each of the processors, which in turn compares it to it's own previously calculated `SampleTime` to know when events should be played.
+5. Once the realtime thread is done processing a buffer, it uses the `TempoMap` plus this `SampleRate` to convert this playhead into the corresponding `MusicalTime`. It then sends this to the GUI/non-realtime thread for visual feedback of the playhead.
+6. When the GUI/non-realtime thread wants to manually change the position of the playhead, it sends the `MusicalTime` that should be seeked to the realtime thread. The realtime thread then uses it, the `TempoMap`, and the `SampleRate` to find the nearest (floored) sample to set as the new playhead.
+
+### Data types:
+- `MusicalTime` - unit of "musical beats" - internally represented as an `f64`
+- `Seconds` - unit of time in seconds - internally represented as an `f64`
+- `SampleTime` - unit of time in number of discrete samples - internally represented as an `i64`
+- `TempoMap` - a map of all tempo changes in the project (like an automation track) - (internal representation to be decided)
+
+
+## Hardware I/O
+
+We will store this functionality in the [`rusty-daw-io`] repo.
+
+We will use [`cpal`] (or at least our fork of it) as a core component in connecting to hardware. However, there is still a few things that need to be done:
+
+- Create an easy-to-use interface that any GUI system can use to present available devices to the user, and then select and apply those settings. Whenever "apply" is selected, we will take the easy route and restart the whole audio engine (as opposed to trying to seamlessly update the existing one).
+- Spawn a realtime callback closure with all input/output buffers neatly packaged in the arguments. Cpal already has done most of the work for us here, but we need to solve syncing multiple non-duplex buffers together onto the same callback thread.
+- Add detection and connecting to MIDI devices. This will be the most difficult part, as `cpal` does not handle this. For mvp, we only need to focus on simple MIDI messages like note on/off velocity, and CC controls.
+
+
+## Audio Graph
+
+*TODO:  Someone who knows more about this explain what needs to be done here and how it will be done.*
+
+
+## Sampler Engine
+
+We will store this functionality in the [`rusty-daw-sampler`] repo.
+
+This will act as a sampling engine for playing audio clips (whether on a timeline or a clip launcher), as well as any future sampling plugins. 
+
+The proposed interface will look like this:
+
+* Ability to create a `PCMResource` type, which is an *immutable* [`basedrop`] smart pointer to raw samples in memory. The immutability reflects the non-destructive nature of this engine. This type will also store the sample-rate of the data. These raw samples provided by the user of this crate should be:
+    * Uncompressed (this crate will not handle encoding/decoding)
+    * De-interleaved (each channel in its own buffer)
+    * Preferably in the original bit depth (this crate *will* handle automatically converting to f32/f64 on the fly)
+    * Preferably in the original sample rate, regardless of the project's sample rate. A key design of this sampling engine is the ability to only need one resampling pass to do any type of effects like pitch-shifting or time stretching (as opposed to two or more if the data is converted to the project's sample rate on load, which will have a noticeable drop in quality)
+* An enum `ShiftMode` (non-exhaustive) that contains the following options:
+    * `None` - No pitch shifting/time stretching.
+    * `Doppler(f64`) - Speed up/slow down the effective playback speed by this factor. It is up to the user to calculate the value they need to pass in.
+    (Goals after mvp include time stretching, pitch *and* time streching, and formant shifting)
+* An enum called `InterpQuality` (interpolation quality, non-exhaustive)
+    * `TODO`
+* Ability to create a `Sampler` type, which contains the following:
+    * An *immutable* [`basedrop`] smart pointer to a `PCMResource`. The immutability reflects the non-destructive nature of this engine.
+    * A method that fills rendered samples into a given buffer. This method will have the following arguments:
+        * `buffer: &mut[f32]` - the buffer of samples to fill (single channel)
+        * `channel: u16` - the channel of the `PCMResource` to use
+        * `frame: SampleTime(i64)` - the frame in the `PCMResource` where the copying will start. Note this may be negative. The behavior of this method should be to fill in zeros wherever the buffer lies outside of the resource's range.
+        * `sub_frame: f64` - the fractional sub-sample offset to add to the previous `frame` argument. This engine should handles interpolation.
+        * `shift_mode: ShiftMode` - described above
+        * `interp_quality: InterpQuality` - described above
+
+While streaming samples from disk is an eventual goal of this crate, it will not be part of the mvp.
+
+
+# GUI Design (MVP)
 
 *TODO*
 
 [`Symphonia`]: https://github.com/pdeljanov/Symphonia
+[`cpal`]: https://github.com/RustyDAW/cpal
+[`rusty-daw-time`]: https://github.com/RustyDAW/rusty-daw-time
+[`rusty-daw-io`]: https://github.com/RustyDAW/rusty-daw-io
+[`rusty-daw-audio-clip`]: https://github.com/RustyDAW/rusty-daw-audio-clip
+[`basedrop`]: https://github.com/glowcoil/basedrop
