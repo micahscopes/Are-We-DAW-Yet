@@ -5,8 +5,6 @@ Take a look at the [`design doc`].
 
 Join our community at the [`Rust Audio Discord`]!
 
-<img src="/images/dank_meme.jpg">
-
 [`tuix`]: https://github.com/geom3trik/tuix
 [`iced`]: https://github.com/hecrj/iced
 [`egui`]: https://github.com/emilk/egui
