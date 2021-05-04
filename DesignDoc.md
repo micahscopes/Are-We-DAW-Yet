@@ -119,13 +119,13 @@ To keep the scope manageable with such a small team, we will NOT focus on these 
 
 ## Time Keeping
 
-Keeping accurate track of time of events is crucial. However, automated tempos and samplerates poses a challenge. The proposed solution lies in the [`rusty-daw-time`] repo.
+Keeping accurate track of time of events is crucial. However, automated tempos, swing tempos, and different audio device samplerates poses a challenge. The proposed solution lies in the [`rusty-daw-time`] repo.
 
 The crate is designed as such:
 
 ### Intended workflow:
 1. The GUI/non-realtime thread stores all events in `MusicalTime` (unit of beats).
-2. The GUI/non-realtime thread creates a new `TempoMap` on project startup and whenever anything about the tempo changes. It this sends this new `TempoMap` to the realtime-thread.
+2. The GUI/non-realtime thread creates a new `TempoMap` on project startup and whenever anything about the tempo changes. It then sends this new `TempoMap` to the realtime-thread.
 3. When the realtime thread detects a new `TempoMap`, all processors with events stored in `MusicalTime` use the `TempoMap` plus the `SampleRate` to convert each `MusicalTime` into the corresponding discrete `SampleTime` (or sub-samples). It keeps this new `SampleTime` for all future use (until a new `TempoMap` is recieved).
 4. When playback occurs, the realtime-thread keeps tracks of the number of discrete samples that have elapsed. It sends this "playhead" to each of the processors, which in turn compares it to it's own previously calculated `SampleTime` to know when events should be played.
 5. Once the realtime thread is done processing a buffer, it uses the `TempoMap` plus this `SampleRate` to convert this playhead into the corresponding `MusicalTime`. It then sends this to the GUI/non-realtime thread for visual feedback of the playhead.
@@ -190,8 +190,104 @@ While streaming samples from disk is an eventual goal of this crate, it will not
 
 ## Control Spec
 
-*TODO*
+We will be using our own custom control spec instead of standard MIDI. This is for the following reasons:
 
+* The MIDI standard doesn't support all the features we want like:
+    * Non 12-TET scales
+    * Per-note modulation of pitch, volume, pan, etc (This is afforded by the MPE extension, though)
+    * Fine control over sample-accurate audio-rate modulation
+    * MIDI wants to take control of aspects we believe should be left to the plugin spec instead, such as plugin parameters.
+* The MIDI2 standard is more promising, but there are several issues we take with it:
+    * The spec is huge and complicated.
+    * We would have to rely on a third party organization to include any potential features in the future.
+    * It heavily prioritizes being fully backwards compatible with MIDI. We have some doubts on how acheivable this actually is.
+    * MIDI2 wants to take control of aspects we believe should be left to the plugin spec instead, such as plugin parameters.
+    * MIDI2 is new and has little adoption. We have no idea if it will even be successful in the long run.
+
+Our solution will be to create our own control spec that is very similar to the MIDI spec with the MPE extensions, but with some tweaks. 
+
+The goal should be to easily and quickly convert to/from standard MIDI with MPE for use with existing MIDI controllers and plugins. However, unlike MIDI2, this will not aim for complete backwards compatibility. Some loss of information is unavoidable, but in most cases is acceptable as most of this lost MIDI information is extranneous for modern DAWs (like instrument groups).
+
+This control spec only deals with how to send data to/between plugins. This data will be sent in the same "process" method along with audio buffers. How control information is actually stored by the host/plugin does not matter, as long as it can convert it into this format when passing it between "process" methods. For this DAW project specifically, we will store all events in `MusicalTime` as described in the "Time Keeping" section above.
+
+All automation will be in sample-accurate f32 format in the range [0.0, 1.0]. This is to allow the host to easily hook up any audio channel into an "automation node" for easy audio-rate modulation of any parameter. While this does use more memory, the fact is plugins (should) be converting these control messages into a sample-accurate buffer and applying a LPF for de-clicking anyway. Note that the host should not do any LPF declicking before sending it to the plugin, this should be the plugin's responsibility. When converting to standard MIDI, it is up to the host to decide how finely it should "sample" this buffer for individual CC messages. The host should hard clip any user-generated (or modulation from an audio souce) control data to the range [0.0, 1.0] before sending it to a plugin to avoid unexpected problems.
+
+* Scale Info
+    * `bool` - Whether the default Western 12-TET equal tempered tuning scale is to be used (0), or a custom scale/tuning is to be used (1)
+    * `f64` - The pitch of the root note (C4 or 440Hz in 12-TET) in Hz.
+    * `Vec<f32>` - If using a custom scale/tuning, then send a Vec of f32s containing the ratio of every note (including the root note, but not the octave note) as it relates to the root note (1.0 being the same pitch as root, 2.0 being an octave above the root.) The length of this Vec will also tell all devices how many notes there are in the scale. For example, a Vec with 12-TET equal tempered tuning would look like this:
+    ```
+        1.0,       // 2 ^ (0/12)
+        1.059463,  // 2 ^ (1/12)
+        1.122462,  // 2 ^ (2/12)
+        1.189207,  // 2 ^ (3/12)
+        1.259921,  // 2 ^ (4/12)
+        1.33484,   // 2 ^ (5/12)
+        1.414214,  // 2 ^ (6/12)
+        1.498307,  // 2 ^ (7/12)
+        1.587401,  // 2 ^ (8/12)
+        1.681793,  // 2 ^ (9/12)
+        1.781797,  // 2 ^ (10/12)
+        1.887749,  // 2 ^ (11/12)
+    ```
+
+* Note On Packets (`Vec<NoteOnPacket>`)
+    * NoteOnPacket:
+        * `u8` - Note channel index. This is akin to MIDI's "instrument channels", where it allows the multiple note sources to control different instruments inside the same "synth/sampler" plugin.
+        * `u16` - The individual "voice index" of this note. This is used as an "index" for MPE and per-note automation. Note, to be in spec, the host / plugin generating these packets must take care to never generate two notes of the same "voice index" that overlap in time. If a plugin does recieve one of these invalid packets (which it can detect by recieving a Note ON packet before recieving a "Note Off" packet of the same voice index), the behavior should be to just ignore the invalid packet and any future packets with the same "voice index" and set that note to "off".
+        * `f32` - The offset time (in samples, positive f32) when this event should occur, relative to the currently active "Start frame packet".
+        * `i8` - The "octave" of the note. 0 being the root octave (C4 / 440Hz in 12-TET)
+        * `u16` - The "index" of the note in the scale as they appear in latest "Scale packet" recieved. (e.g. in 12-TET, 0 is root/C, 1 is C#, 2 is D, etc). If given an index that lies outside the range of available notes, the behavior should be to ignore the packet and all future packets with the same `voice index` until the "Note Off" packet is recieved.
+        * `f32` - The "velocity" of the note, in the range [0.0, 1.0].
+        * `f32` - The "pan" of the the note, in the range [0.0, 1.0]. 0.0 is "center"
+        * `f32` - The initial "pressure" of the note (Polyphonic after-touch), in the range [0.0, 1.0]
+        * `Vec<f32>` - Additional parameters that can be used for whatever as decided between the host/plugin, in the range [0.0, 1.0]
+
+* Note Off Packets (`Vec<NoteOffPacket>`)
+    * NoteOffPacket:
+        * `u8` - Note channel index.
+        * `u16` - The "voice index" of this note).
+        * `f32` - The offset time (in samples, positive f32) when this event should occur, relative to the currently active "Start frame packet".
+        * `f32` - An optional "release velocity", in the range [0.0, 1.0]. It is up to the plugin to determine how it uses this value.
+        * `Vec<f32>` - Additional parameters that can be used for whatever as decided between the host/plugin, in the range [0.0, 1.0]
+
+* MPE Packets (micro pitch expression) (`Vec<MPEPacket>`)
+    * MPEPacket:
+        * `u8` - Note channel index.
+        * `u16` - The "voice index" of this note (u16).
+        * `Vec<f32>` - A sample-accurate buffer of automation data. Each value is the ratio of the pitch relative to the root note (the same system as described in "Scale Info". This must be the same length as the buffer described in the latest "Start Frame packet".
+
+* Per-note Automation Packets (`Vec<PAPacket>`)
+    * PAPacket (polyphonic automation data / per-note automation data)
+        * `u8` - Note channel index.
+        * `u16` - The "voice index" of this note.
+        * `u16` - An enum of what this is controlling. Options are:
+            * 0: Velocity, in the range
+            * 1: Pan, in the range
+            * 2: Pressure (Polyphonic after-touch), in the range
+            * 3-100: (reserved)
+            * 101-65532: Up to the host & plugin to decide
+        * `Vec<f32>` - A sample-accurate buffer of automation data. Note, to be in spec, all automation data *must* be between the range [-1.0, 1.0]. This is to allow the host to easily hook up an audio channel to a control node for sample-accurate automation. Also, this must be the same length as the output buffer in the "process" method.
+
+* Automation Data Packets (`Vec<AutomationPacket>`) (All automation in this spec is sample-accurate)
+    * AutomationPacket:
+        * `u16` - An enum of what this is automating. This reflects commonly used MIDI CCs with some tweaks:
+            * 0: Mod Wheel
+            * 1: Breath Control
+            * 2: Foot Pedal
+            * 3: Output Volume (of the overall instrument)
+            * 4: Pan (of the overall instrument)
+            * 5: Expression Pedal
+            * 6: Sustain Pedal on/off (`<=0 Off, >0 On`)
+            * 7-51: (reserved)
+            * 52-67: 16 common control knobs. These are normally used to automatically assign the first (up to) 16 knobs on the user's hardware MIDI controller for controlling macros on the synth plugin.
+            * 68-83: 16 common faders. These are normally used to automatically assign the first (up to) 16 mixing faders on the user's hardware MIDI controller for controlling gain on synths/effects.
+            * 84-99: 16 common switches (`<=0 Off, >0 On`). These are normally used to automatically assign the first (up to) 16 binary switches on the user's hardware MIDI controller for controlling a synth/effect.
+            * 100-65536: Up to the plugin to decide. This is usually communicated between host and plugin on what this will control.
+        * `Vec<f32>` - A sample-accurate buffer of automation data. Note, to be in spec, all automation data *must* be between the range [-1.0, 1.0]. This is to allow the host to easily hook up an audio channel to a control node for sample-accurate automation. Also, this must be the same length as the output buffer in the "process" method. The host should hard clip any user-generated (or modulation from an audio souce) control data to the range [-1.0, 1.0] before sending it to a plugin to avoid unexpected problems.
+
+* All Notes Off Signal
+    * `bool` - Signals that at the end of this buffer, all currently active notes should be set to "turned off".
 
 ## Timeline Engine
 
