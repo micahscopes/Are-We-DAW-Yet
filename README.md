@@ -9,4 +9,4 @@ Join our community at the [`Rust Audio Discord`]!
 [`iced`]: https://github.com/hecrj/iced
 [`egui`]: https://github.com/emilk/egui
 [`Rust Audio Discord`]: https://discord.gg/Qs2Zwtf9Gf
-[`design doc`]: DesignDoc.md
+[`design doc`]: https://github.com/RustyDAW/rusty-daw-application/blob/main/DesignDoc.md
