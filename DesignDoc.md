@@ -28,7 +28,7 @@ We believe Rust to be the perfect language for this project because of its desig
 While our long term goals are to grow into a fully-featured DAW with a featureset that competes with existing commercial DAWs like FL, Live, and Bitwig, we need to limit the scope to achieve minimum viable product (mvp) release.
 
 ### Goals
-Note these goals are for a specific software application that will be the "flagship" of the RustyDAW project. However, the backend engine will be designed to allow any developer to easily use the same engine for whatever GUI interface/workflow they wish to create.
+Note these goals are for a specific software application that will be the "flagship" of the RustyDAW project, located at the [`rusty-daw-application`] repo (name still in progress). However, the backend engine will be designed to allow any developer to easily use the same engine for whatever GUI interface/workflow they wish to create.
 
 * Cross-platform (Mac, Windows, and Linux)
 * Multi-track timeline with audio clips. Audio clips can added, moved, removed, sliced, and copied freely around the timeline
@@ -377,6 +377,7 @@ Note that there are no messages about changing hardware devices. This is because
 
 *TODO*
 
+[`rusty-daw-application`]: https://github.com/RustyDAW/rusty-daw-application
 [`Symphonia`]: https://github.com/pdeljanov/Symphonia
 [`cpal`]: https://github.com/RustyDAW/cpal
 [`rusty-daw-time`]: https://github.com/RustyDAW/rusty-daw-time
