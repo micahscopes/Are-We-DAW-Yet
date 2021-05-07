@@ -305,7 +305,7 @@ For MVP, we will only focus on hosting VST2 plugins. Displaying the plugin's GUI
 
 All communication between the backend and frontend will be handled by lock-free spsc fifo ring buffers. Any crate of this type would work, but we will use the `ringbuf` crate for the sake of using the same xcrate across the project.
 
-To make this work, most data structs will also create an "ID" counterpart when they are created. The frontend holds onto this "ID" counterpart, and sends the actual struct (wrapped in a [`basedrop`] smart pointer) to the backend via a ringbuffer. The internal structure of this "ID" struct will be an immutable [`basedrop`] smart pointer of the struct itself (although if lifetimes prove to be too difficult, we could also try using uniquely-generated u64 IDs with a hashmap).
+To make this work, most data structs will also create an "ID" counterpart when they are created. The frontend holds onto this "ID" counterpart, and then it sends the actual struct (wrapped in a [`basedrop`] smart pointer) to the backend via a ringbuffer.
 
 The actual messages passed between these buffers will be determined by the specific project itself. For this DAW, we will likely have these messages:
 * Timeline messages
